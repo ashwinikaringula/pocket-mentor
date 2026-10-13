@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pocket Mentor · AI Study &amp; Revision Assistant</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>📘</text></svg>" />
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-mark">PM</div>
+    <div>
+      <div class="brand-name">Pocket Mentor</div>
+      <div class="brand-sub">AI Study &amp; Revision</div>
+    </div>
+  </div>
+
+  <nav class="nav" id="nav">
+    <button class="nav-item active" data-view="dashboard"><span class="ico">📊</span>Dashboard</button>
+    <button class="nav-item" data-view="upload"><span class="ico">⬆️</span>Upload Material</button>
+    <button class="nav-item" data-view="library"><span class="ico">📚</span>My Materials</button>
+    <button class="nav-item" data-view="flashcards"><span class="ico">🃏</span>Flashcards</button>
+    <button class="nav-item" data-view="quiz"><span class="ico">🎯</span>Quiz &amp; Practice</button>
+    <button class="nav-item" data-view="performance"><span class="ico">📈</span>Performance</button>
+    <button class="nav-item" data-view="revision"><span class="ico">🧠</span>Revision Plan</button>
+  </nav>
+
+  <div class="flow-card">
+    <div class="flow-title">System Flow</div>
+    <div class="flow-steps">
+      <span>Upload</span><i>→</i><span>AI Analysis</span><i>→</i><span>Summary</span>
+      <i>→</i><span>Flashcards</span><i>→</i><span>Quiz</span><i>→</i><span>Performance</span>
+    </div>
+  </div>
+
+  <div class="engine-badge">
+    <span class="dot"></span>
+    <span id="engineLabel">local-engine</span>
+  </div>
+</aside>
+
+<main class="main">
+
+  <!-- ═══════════════════════ DASHBOARD ═══════════════════════ -->
+  <section class="view active" id="view-dashboard">
+    <header class="page-head">
+      <div>
+        <h1>Dashboard</h1>
+        <p class="muted" id="welcome">Upload notes, let AI build your revision kit, then practise until every topic is strong.</p>
+      </div>
+      <button class="btn primary" data-goto="upload">＋ New Material</button>
+    </header>
+
+    <div class="stat-grid" id="statGrid"></div>
+
+    <div class="split">
+      <div class="panel">
+        <div class="panel-head"><h2>Recent Materials</h2><button class="link" data-goto="library">View all →</button></div>
+        <div id="recentMaterials" class="list"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Topic Mastery</h2><span class="muted small">from quiz attempts</span></div>
+        <div id="dashTopics" class="topic-list"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Recent Attempts</h2></div>
+      <div id="dashAttempts"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ UPLOAD ═══════════════════════ -->
+  <section class="view" id="view-upload">
+    <header class="page-head"><div>
+      <h1>Upload Study Material</h1>
+      <p class="muted">PDF · DOCX · TXT · MD — analysed on-device by the AI engine, then stored in the database.</p>
+    </div></header>
+
+    <div class="panel">
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="fileInput" accept=".pdf,.docx,.txt,.md" hidden />
+        <div class="dz-icon">📄</div>
+        <div class="dz-title">Drop your notes here or <span class="link">browse files</span></div>
+        <div class="dz-sub">Max 10 MB · .pdf .docx .txt .md</div>
+      </div>
+
+      <div class="field-row">
+        <label class="field">
+          <span>Material title (optional)</span>
+          <input type="text" id="titleInput" placeholder="e.g. Cell Biology — Unit 3" />
+        </label>
+        <button class="btn primary" id="uploadBtn" disabled>Analyse &amp; Generate</button>
+      </div>
+
+      <div class="progress" id="progress" hidden>
+        <div class="bar"><div class="fill" id="progressFill"></div></div>
+        <div class="progress-text" id="progressText">Extracting text…</div>
+      </div>
+
+      <div class="hint">No document handy? <button class="link" id="sampleBtn">Load the built-in photosynthesis sample</button></div>
+    </div>
+
+    <div id="uploadResult"></div>
+  </section>
+
+  <!-- ═══════════════════════ LIBRARY ═══════════════════════ -->
+  <section class="view" id="view-library">
+    <header class="page-head"><div>
+      <h1>My Materials</h1>
+      <p class="muted">Every uploaded document with its generated summary, flashcards and quiz.</p>
+    </div></header>
+    <div id="libraryList" class="card-grid"></div>
+  </section>
+
+  <!-- ═══════════════════════ MATERIAL DETAIL ═══════════════════════ -->
+  <section class="view" id="view-material">
+    <header class="page-head">
+      <div>
+        <button class="link back" data-goto="library">← Back to materials</button>
+        <h1 id="matTitle">Material</h1>
+        <p class="muted" id="matMeta"></p>
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="reanalyseBtn">↻ Re-analyse</button>
+        <button class="btn primary" id="matQuizBtn">Start Quiz →</button>
+      </div>
+    </header>
+
+    <div class="tabs" id="matTabs">
+      <button class="tab active" data-tab="summary">Summary</button>
+      <button class="tab" data-tab="points">Important Points</button>
+      <button class="tab" data-tab="topics">Topics</button>
+      <button class="tab" data-tab="cards">Flashcards</button>
+      <button class="tab" data-tab="quiz">Quiz</button>
+      <button class="tab" data-tab="text">Source Text</button>
+    </div>
+
+    <div class="panel tab-panel active" id="tab-summary"></div>
+    <div class="panel tab-panel" id="tab-points"></div>
+    <div class="panel tab-panel" id="tab-topics"></div>
+    <div class="panel tab-panel" id="tab-cards"></div>
+    <div class="panel tab-panel" id="tab-quiz"></div>
+    <div class="panel tab-panel" id="tab-text"></div>
+  </section>
+
+  <!-- ═══════════════════════ FLASHCARDS ═══════════════════════ -->
+  <section class="view" id="view-flashcards">
+    <header class="page-head"><div>
+      <h1>Flashcards</h1>
+      <p class="muted">Click the card to flip. Mark each answer to feed your revision plan.</p>
+    </div>
+    <select id="fcMaterialSelect" class="select"></select></header>
+    <div class="fc-wrap" id="fcWrap"></div>
+  </section>
+
+  <!-- ═══════════════════════ QUIZ ═══════════════════════ -->
+  <section class="view" id="view-quiz">
+    <header class="page-head"><div>
+      <h1>Quiz &amp; Practice</h1>
+      <p class="muted">Answer every question — your score builds the performance profile.</p>
+    </div>
+    <select id="quizMaterialSelect" class="select"></select></header>
+    <div id="quizBox"></div>
+  </section>
+
+  <!-- ═══════════════════════ PERFORMANCE ═══════════════════════ -->
+  <section class="view" id="view-performance">
+    <header class="page-head"><div>
+      <h1>Performance Analysis</h1>
+      <p class="muted">Scores and weak topics identified from quiz attempts.</p>
+    </div></header>
+    <div class="stat-grid" id="perfStats"></div>
+    <div class="split">
+      <div class="panel"><div class="panel-head"><h2>Accuracy by Topic</h2></div><div id="perfTopics"></div></div>
+      <div class="panel"><div class="panel-head"><h2>Attempt History</h2></div><div id="perfAttempts"></div></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ REVISION PLAN ═══════════════════════ -->
+  <section class="view" id="view-revision">
+    <header class="page-head"><div>
+      <h1>Personalised Revision Plan</h1>
+      <p class="muted">Generated from your weakest topics, with the exact flashcards to review.</p>
+    </div>
+    <button class="btn" id="refreshPlan">↻ Regenerate</button></header>
+    <div id="planBox"></div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+<script src="/app.js"></script>
+</body>
+</html>

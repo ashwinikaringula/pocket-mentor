@@ -1,0 +1,19 @@
+{
+  "name": "pocket-mentor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pocket Mentor - AI Study & Revision Assistant (full-stack: frontend + REST backend + SQLite DB)",
+  "type": "module",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node --experimental-sqlite src/server.js",
+    "dev": "node --experimental-sqlite --watch src/server.js",
+    "migrate": "node --experimental-sqlite src/migrate.js",
+    "test:api": "node --experimental-sqlite test/api.test.js"
+  },
+  "dependencies": {},
+  "keywords": ["study", "revision", "flashcards", "quiz", "ai", "sqlite", "express-alternative"],
+  "license": "MIT"
+}
